@@ -1,0 +1,45 @@
+<launch>
+  <!-- start realsense -->
+  <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch"/>
+  <param name="/camera/realsense2_camera/filters" value="pointcloud"/> -->
+
+  <!-- set static tf -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="poses_front_broadcaster" args="0.2 0 0 0 0 0 1 map poses_front" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="plane_front_broadcaster" args="-0.3 -0.35 0 0 0 0 1 map plane_front" />
+
+  <!-- Start openpose_ros -->
+  <node pkg="openpose_ros" type="openpose_ros_node" name="openpose_ros_node" output="screen">
+   <param name="image_topic"                value="/hsrb/head_rgbd_sensor/rgb/image_raw" />
+    <!-- <param name="image_topic"                value="/camera/color/image_raw" /> -->
+    <param name="input_image_transport_type" value="raw" />
+    <param name="output_topic"               value="/openpose/poses" />
+    <param name="poses_topic"                value="/openpose/poses_pub" />
+    <param name="display_output"             value="true" />
+    <param name="print_keypoints"            value="true" />
+    <param name="save_original_video"        value="false" />
+    <param name="save_openpose_video"        value="false" />
+    <param name="original_video_file_name"   value="original_video_output.avi" />
+    <param name="openpose_video_file_name"   value="openpose_video_output.avi" />
+    <param name="video_fps"                  value="10" />
+  </node>
+
+  <node pkg="openpose_ros" type="detect_poses" name="detect_poses_node" output="screen">
+  </node>
+
+  <!-- <node pkg="openpose_ros" type="tabletop_trash" name="tabletop_trash_node" output="screen">
+    <param name="threshold_plane" value="0.01"/>
+    <param name="threshold_tube" value="0.001"/>
+    <param name="radius_min_limits" value="0.001"/>
+    <param name="radius_max_limits" value="0.03"/>
+  </node> -->
+
+  <node pkg="openpose_ros" type="calibration_pointing" name="calibration_pointing_node" output="screen">
+    <param name="threshold_plane" value="0.01"/>
+    <param name="threshold_tube" value="0.001"/>
+    <param name="radius_min_limits" value="0.001"/>
+    <param name="radius_max_limits" value="0.03"/>
+  </node>
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find openpose_ros)/config/calibration_pointing.rviz"/>
+  <!-- <node pkg="openpose_ros" type="tf_poses_publisher" name="tf_publisher_node" output="screen"/> -->
+</launch>
